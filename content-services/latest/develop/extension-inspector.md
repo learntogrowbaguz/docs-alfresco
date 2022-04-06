@@ -28,7 +28,7 @@ The Extension Inspector has two main modules:
 | Analyser | `extension-inspector-analyser` for analyzing custom extensions against the inventory |
 
 ## Download
-You can download the [alfresco-extension-inspector-1.2.0.jar](https://artifacts.alfresco.com/nexus/service/local/repositories/releases/content/org/alfresco/extension-inspector/alfresco-extension-inspector/1.2.0/alfresco-extension-inspector-1.2.0.jar) 
+You can download the [alfresco-extension-inspector-1.3.0.jar](https://artifacts.alfresco.com/nexus/service/local/repositories/releases/content/org/alfresco/extension-inspector/alfresco-extension-inspector/1.3.0/alfresco-extension-inspector-1.3.0.jar) 
 file from the Alfresco Nexus repository.
 
 >**Note:** See the [Alfresco Extension Inspector](https://github.com/Alfresco/alfresco-extension-inspector){:target="_blank"} GitHub repository for more details.
@@ -123,6 +123,13 @@ java -jar alfresco-extension-inspector-<version>.jar <extension-filename> [--tar
 ```
 
 where:
+
+TODO: 
+
+https://github.com/Alfresco/alfresco-extension-inspector/tree/master/extension-inspector-analyser/src/main/resources/bundled-inventories
+java -jar extension-inspector-packaging/target/alfresco-extension-inspector-1.3.0.jar --list-known-alfresco-versions
+Known Alfresco versions: [5.2.0, 5.2.1, 5.2.2, 5.2.3, 5.2.4, 5.2.5, 5.2.6, 5.2.7, 6.0.0, 6.0.1, 6.1.0, 6.1.1, 6.2.0, 6.2.1, 6.2.2, 7.0.0, 7.0.1, 7.1.0.1]
+
 
 | Option | Description |
 | ------ | ----------- |
