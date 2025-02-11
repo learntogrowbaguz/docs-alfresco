@@ -2,16 +2,11 @@
 title: Extension Inspector
 ---
 
-Alfresco Extension Inspector allows you to analyze Alfresco extensions and to compare them against a particular 
-Content Services version. For example, it helps you to understand how customizations and extensions are affected with 
-a newer version of Content Services, checking for compliance with our best practices and providing recommendations for 
-upgrade impact and safety. 
+Alfresco Extension Inspector allows you to analyze Alfresco extensions and to compare them against a particular Content Services version. For example, it helps you to understand how customizations and extensions are affected with a newer version of Content Services, checking for compliance with our best practices and providing recommendations for upgrade impact and safety.
 
-It works with Content Services 5.2 or later Enterprise Editions. The tool also works with other Content Services and 
-Community Edition `.war` files, as long as you can [generate an inventory report](#run-inventory-application).
+It works with Content Services 5.2 or later Enterprise Editions. The tool also works with other Content Services and Community Edition `.war` files, as long as you can [generate an inventory report](#run-inventory-application).
 
-The Extension Inspector scans and validates an Alfresco [extension (AMP or JAR)]({% link content-services/latest/develop/extension-packaging.md %}) 
-against an `alfresco.war` file.
+The Extension Inspector scans and validates an Alfresco [extension (AMP or JAR)]({% link content-services/latest/develop/extension-packaging.md %}) against an `alfresco.war` file.
 
 The main features of the Extension Inspector are:
 
@@ -28,12 +23,13 @@ The Extension Inspector has two main modules:
 | Analyser | `extension-inspector-analyser` for analyzing custom extensions against the inventory |
 
 ## Download
-You can download the [alfresco-extension-inspector-1.2.0.jar](https://artifacts.alfresco.com/nexus/service/local/repositories/releases/content/org/alfresco/extension-inspector/alfresco-extension-inspector/1.2.0/alfresco-extension-inspector-1.2.0.jar) 
-file from the Alfresco Nexus repository.
+
+You can download the [alfresco-extension-inspector-2.0.0.jar](https://artifacts.alfresco.com/nexus/repository/releases/org/alfresco/extension-inspector/alfresco-extension-inspector/2.0.0/alfresco-extension-inspector-2.0.0.jar) file from the Alfresco Nexus repository.
 
 >**Note:** See the [Alfresco Extension Inspector](https://github.com/Alfresco/alfresco-extension-inspector){:target="_blank"} GitHub repository for more details.
 
 ## Run Inventory application
+
 The application generates a report for a `.war` file.
 
 Use the following command to run the application:
@@ -48,6 +44,7 @@ where:
 | ------ | ----------- |
 | <nobr>--inventory</nobr> | *Required.* The path to a valid `.war` file that you want to parse. |
 | <nobr>--o</nobr> | *Optional.* The output location where the report is generated. You can set this as either a file name or folder location. The report name defaults to `<war_name>.inventory.json`. |
+| <nobr>--help</nobr> | *Optional.* Show help text. |
 
 When you run the Inventory command, the output is a report in JSON format with the following example structure:
 
@@ -114,23 +111,41 @@ When you run the Inventory command, the output is a report in JSON format with t
 ```
 
 ## Run Analyser application
+
 The application analyzes custom extensions against WAR inventories.
 
 Use the following command to run the application:
 
 ```bash
-java -jar alfresco-extension-inspector-<version>.jar <extension-filename> [--target-version=6.1.0[-7.0.0] | --target-inventory =/path/to/war_inventory.json] [--verbose=[true | false]]
+java -jar alfresco-extension-inspector-<version>.jar <extension-filename> [--target-version=6.1.0[-23.2.1] | --target-inventory =/path/to/war_inventory.json] [--verbose=[true | false]]
 ```
 
 where:
 
 | Option | Description |
 | ------ | ----------- |
+| extension-filename | *Required.* AMP or JAR file containing an Alfresco extension. |
 | <nobr>--target-version</nobr> | *Optional.* A specific Content Services version or range of versions. This option is mutually exclusive to `--target-inventory`. |
 | <nobr>--target-inventory</nobr> | *Optional.* The file path to an existing WAR inventory. This option is mutually exclusive to `--target-version`. |
-| <nobr>--verbose</nobr> | *Optional.* Verbose output. |
+| <nobr>--verbose</nobr> | *Optional.* Show verbose output. |
+| <nobr>--list-known-alfresco-versions</nobr> | *Optional.* List all Alfresco versions with inventory reports included in the tool. |
+| <nobr>--help</nobr> | *Optional.* Show help text. |
 
 When running the command, `alfresco-extension-inspector` writes the conflicts directly to the console, grouped by type.
+
+### Example commands
+
+Show help text:
+
+```bash
+   java -jar alfresco-extension-inspector.jar --help
+```
+
+List all Alfresco versions with bundled inventories:
+
+```bash
+   java -jar alfresco-extension-inspector.jar --list-known-alfresco-versions
+```
 
 The following conflict types are detected:
 
@@ -139,7 +154,8 @@ The following conflict types are detected:
 * Classpath conflicts (`CLASSPATH_CONFLICT`)
 * Beans instantiating restricted classes (`BEAN_RESTRICTED_CLASS`)
 * Usage of non @AlfrescoPublicAPI classes (`ALFRESCO_INTERNAL_USAGE`)
-* Usage of 3rd party libraries (`WAR_LIBRARY_USAGE)`
+* Usage of 3rd party libraries (`WAR_LIBRARY_USAGE`)
+* Jakarta migration dependency conflicts (`JAKARTA_MIGRATION_CONFLICT`)
 
 The output is a report with the following example structure.
 
@@ -218,18 +234,54 @@ These 3rd party libraries are managed by the ACS repository and are subject to
 constant change, even in service packs and hotfixes.
 Each of these libraries has its own backward compatibility strategy, which will
 make it really hard for this extension to keep up with these changes.
+```
 
-REPORT SUMMARY
+### Incompatible Jakarta migration dependencies
+
+```text
+The following classes defined in the extension module are using incompatible jakarta migration dependencies:
+
+  org.alfresco.utility.data.DataEmail
+  org.alfresco.utility.data.DataEmail$1
+Jakarta migration dependencies:
+  jakarta.mail.Authenticator
+  jakarta.mail.Flags
+  jakarta.mail.Flags$Flag
+  jakarta.mail.Folder
+  jakarta.mail.Message
+  jakarta.mail.MessagingException
+  jakarta.mail.Session
+  jakarta.mail.Store
+  jakarta.mail.internet.MimeMessage
+  jakarta.mail.search.AndTerm
+  jakarta.mail.search.FlagTerm
+  jakarta.mail.search.SearchTerm
+
+Classes using non-jakarta migrated dependencies are incompatible with a jakarta migrated ACS version, and vice versa.
+For a complete usage matrix, use the -verbose option of this tool.
+```
+
+### REPORT SUMMARY
+
+```text
 Across the provided target versions, the following number of conflicts have been
 found:
 
-| Type                    | Total |
-| ----------------------- | ----- |
-| BEAN_OVERWRITE          | 1     |
-| BEAN_RESTRICTED_CLASS   | 1     |
-| CLASSPATH_CONFLICT      | 1     |
-| ALFRESCO_INTERNAL_USAGE | 2     |
-| WAR_LIBRARY_USAGE       | 1     |
++--------------------------+-----+
+|Type                      |Total|
++--------------------------+-----+
+|BEAN_OVERWRITE            |1    |
++--------------------------+-----+
+|BEAN_RESTRICTED_CLASS     |1    |
++--------------------------+-----+
+|CLASSPATH_CONFLICT        |1    |
++--------------------------+-----+
+|ALFRESCO_INTERNAL_USAGE   |2    |
++--------------------------+-----+
+|WAR_LIBRARY_USAGE         |1    |
++--------------------------+-----+
+|JAKARTA_MIGRATION_CONFLICT|2    |
++--------------------------+-----+
 
 (use option --verbose for version details)
 ```

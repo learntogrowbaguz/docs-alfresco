@@ -131,9 +131,11 @@ Work with your files and folders using the Alfresco sidebar.
 
 1. Click the **Explore** tab from the **Alfresco Outlook Client** sidebar, or navigate through the list view.
 
-    ![]({% link microsoft-outlook/images/outlook-sidebar-annotated.png %})
+    ![Outlook Client sidebar - 2.9.2+]({% link microsoft-outlook/images/2-9-2-outlook-sidebar-annotated.png %})
 
     >**Note:** In Alfresco Outlook Integration 2.7, the **Explore** tab is only available if the **Workflow** tab is also enabled to save space for more content. The **Workflow** tab is hidden by default.
+
+    >**Note:** In Alfresco Outlook Integration 2.9.2, the **Explore** tab includes a Simple Search Filter that allows you to filter the simple search results via options **Exclude folders** or to show **Folders only**. The default option is to show **All content**.
 
 2. Repo location selector: choose which sites and content you wish to see. You can see the full repository in this view, or limit the view to certain sites only (**All Sites**, **My Sites** or **Favorite Sites**).
 
@@ -207,8 +209,6 @@ Start workflows using the Alfresco sidebar.
         Upcoming appointments and tasks are shown in the left panel.
 
         >**Note:** In Alfresco Outlook Integration 2.7, the **Workflow** tab is disabled by default. Contact your IT team for further help.
-
-    >**Note:** If your IT team has configured SAML authentication without single-sign on (SSO), when you select the **Workflow** dialog, you'll be prompted to enter your login credentials even though you've already logged in successfully.
 
 ## Managing file versions in Outlook
 
@@ -398,10 +398,3 @@ The Alfresco Outlook Client no longer permits direct write access to a Records M
 ### Error when declaring a record from within Alfresco Outlook Client
 
 In the Alfresco Outlook Client, you might see a message stating that you can't declare a record from within the client. This action is no longer supported. However, you can declare content in a collaboration site as a record (i.e. create an inline record).
-
-### Drag and drop as a PDF link doesn't work with SAML authentication
-
-There's a known issue when using drag and drop from Alfresco to convert an Office file to PDF format, and adding it to an email as a link, where there's an option to automatically link to a PDF version of that document. This feature doesn't currently work with SAML authentication. However, there's a workaround to achieve the same functionality:
-
-* Convert the document you want to link to as a PDF first, using the available context menu action
-* Drag and drop the PDF version as a link to the email

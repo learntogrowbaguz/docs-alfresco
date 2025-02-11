@@ -19,6 +19,10 @@ There are a number of important notes to consider when installing the Document T
 
 * To enable the Document Transformation Engine to work with non-English documents you must install the desired Microsoft Office language pack of the language you want to work with.
 
+* Microsoft Office (32-bit and 64-bit).
+
+    > **Note:** Please be advised that the Alfresco Document Transformation  Engine (DTE) uses Microsoft Office to automate the creation of high-fidelity renderings of Office document formats; as a result, it is your responsibility as a user of DTE to ensure that you have proper licensing arrangements in place with Microsoft to allow for such automation.
+
 * The Document Transformation Engine does not work with Windows non-English regional settings.
 
 * Make sure that the Windows print spooler service is running.
@@ -40,13 +44,6 @@ There are a number of recommendations for calculating sizing. You will need:
 ### Disc I/O bandwidth
 
 Microsoft Office transformations are I/O-heavy, and so on some solutions, I/O contention can be a performance bottleneck. When multiple Word conversions occur in parallel, performance can suffer heavily from poor random read and write speeds.
-
-Using an Amazon EC2 instance c3.2xlarge, the I/O metrics are as follows:
-
-* sequential read speed: 131 MB/s
-* sequential write speed: 83 MB/s
-* random qd32 read speed: 10,4 MB/s
-* random qd32 write speed: 3,8 MB/s
 
 ## Installation
 

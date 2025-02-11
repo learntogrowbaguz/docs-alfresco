@@ -6,7 +6,7 @@ For more complex Content Services installations, or if you wish to use an existi
 
 Use this method of installing Content Services if you've already have installed a JRE, a supported database, a supported application server, a message broker, and the additional components.
 
-For information about securing Tomcat, see [Tomcat security considerations](https://tomcat.apache.org/tomcat-9.0-doc/security-howto.html){:target="_blank"}.
+For information about securing Tomcat, see [Tomcat security considerations](https://tomcat.apache.org/tomcat-10.1-doc/security-howto.html){:target="_blank"}.
 
 ## Install application server
 
@@ -64,34 +64,55 @@ The installation directory for Tomcat is represented as `<TOMCAT_HOME>`.
 
     2. Copy the files `alfresco.xml` and `share.xml` from the distribution zip `/web-server/conf/Catalina/localhost` to `<TOMCAT_HOME>/conf/Catalina/localhost` (or hostname).
 
-7. Configure mutual TLS for Solr communication.
+7. Configure Content Services for Solr communication by performing one of the following:
 
-    The communication with Solr is encrypted and authenticated via mutual TLS. For this connection, you need an additional Connector.
+    * Install with mutual TLS, where the communication with Solr is encrypted and authenticated via mutual TLS.
 
-    > **Note:** This Connector isn't used by end users. Its sole purpose is to handle the communication with Solr.
+    * Install without mutual TLS using HTTP with a secret word in the request header.
+
+    > **Note:** For more information on installing with or without mutual TLS, see [Install Alfresco Search Services]({%link search-services/latest/install/options.md %}).
+
+8. When installing with mutual TLS, perform the following steps to configure the Tomcat connector:
+
+    > **Note:** This connector isn't used by end users. Its sole purpose is to handle the communication with Solr.
 
     1. Open the `<TOMCAT_HOME>/conf/server.xml` file.
 
-    2. Add the following Connector:
+    2. Add the following connector:
 
         ```xml
-        <Connector port="8443" protocol="HTTP/1.1"
-            SSLEnabled="true" maxThreads="150" scheme="https"
-            keystoreFile="xxxxx"
-            keystorePass="password" keystoreType="JCEKS"
-            secure="true" connectionTimeout="240000"
-            truststoreFile="xxxxx"
-            truststorePass="password" truststoreType="JCEKS"
-            clientAuth="want" sslProtocol="TLS" />
+        <Connector port="8443"
+           protocol="org.apache.coyote.http11.Http11NioProtocol"
+           connectionTimeout="20000"
+           maxThreads="150"
+           SSLEnabled="true"
+           scheme="https"
+           secure="true"
+           defaultSSLHostConfigName="localhost">
+	    <SSLHostConfig hostName="localhost"
+	               protocols="TLSv1.2"
+	               certificateVerification="required"
+	               truststoreFile="/usr/local/tomcat/alf_data/keystore/ssl.truststore"
+	               truststorePassword="truststore"
+	               truststoreType="JCEKS">
+		<Certificate certificateKeystoreFile="/usr/local/tomcat/alf_data/keystore/ssl.keystore"
+		             certificateKeyAlias="ssl.repo"
+		             type="RSA"
+		             certificateKeystorePassword="keystore"
+		             certificateKeystoreType="JCEKS"/>
+	    </SSLHostConfig>
+        </Connector>
         ```
 
-        > **Note:** The keystore and truststore file locations in the above example will be created later, when you install and configure Alfresco Search Services.
+        When configuring the Tomcat connector, consider the following:
 
-        > **Note:** If you're using a different keystore or truststore type other than the default, `JCEKS`, you must change the value in the properties file.
+        * The keystore and truststore files have to be generated to ensure the best security level when installing Alfresco Search Services. You can choose the location of your choice. By default, they are stored either in the Tomcat installation directory or in the `alf_data` directory. For more information, see [Alfresco Search Services secure keys generation]({%link search-services/latest/config/keys.md %}#set-up-certificates).
 
-        > **Note:** In Tomcat versions prior to 9 it was possible to use `org.apache.coyote.http11.Http11Protocol` as the protocol value, but now it has been removed. If you are using configuration from an old instance using a Tomcat version before 9, you need to update the connector protocol value.
+        * If you're using a different keystore or truststore type other than the default, `JCEKS`, you must change the value in the properties file.
 
-8. Save the `server.xml` file.
+        * In Tomcat versions prior to 9 it was possible to use `org.apache.coyote.http11.Http11Protocol` as the protocol value, but now it has been removed. If you are using configuration from an old instance using a Tomcat version before 9, you need to update the connector protocol value.
+
+9. Save the `server.xml` file.
 
 > **Important:** Remember to review and update the Connector details in `server.xml`, including the keystore and truststore file locations, after installing and configuring Alfresco Search Services.
 
@@ -105,7 +126,7 @@ The Content Services distribution file is a zip containing the required WAR file
 
 1. Browse to [Hyland Community](https://community.hyland.com/){:target="_blank"}.
 
-2. Download the file: `alfresco-content-services-distribution-7.2.x.zip`
+2. Download the file: `alfresco-content-services-distribution-23.x.x.zip`
 
 3. Specify a location for the download and extract the file to a system directory; for example `<installLocation>`.
 
@@ -222,6 +243,35 @@ After you've extracted the Content Services distribution zip, several directorie
 | | `generate_keystores.bat` | Windows version of keystore generation file |
 | | `/metadata-keystore` | Content metadata keystore information |
 
+## Move keystore files to your installation
+
+The new keystore configuration implementation requires it to be configured with
+[JAVA parameters]({% link content-services/latest/admin/security.md %}#alfresco-keystore-configuration).
+
+1. Move the default keystore files to your installation
+
+    1. Extract from the `alfresco-content-services-distribution-23.x.x.zip` file the following two files:
+
+        * `/keystore/metadata-keystore/keystore`
+        * `/keystore/metadata-keystore/keystore-passwords.properties`
+
+    2. Copy them to your installation at the following location:
+
+        * `<TOMCAT_HOME>/alf_data/keystore/metadata-keystore/keystore`
+        * `<TOMCAT_HOME>/alf_data/keystore/metadata-keystore/keystore-passwords.properties`
+
+2. Configure Tomcat 10 to use the default keystore files
+
+    1. Open `<TOMCAT_HOME>/bin/catalina.bat` in a text editor.
+
+    2. Add the following line to `catalina.bat`:
+
+       ```bash
+       set “JAVA_TOOL_OPTIONS=-Dencryption.keystore.type=JCEKS -Dencryption.cipherAlgorithm=DESede/CBC/PKCS5Padding -Dencryption.keyAlgorithm=DESede -Dencryption.keystore.location=<TOMCAT_HOME>/alf_data/keystore/metadata-keystore/keystore -Dmetadata-keystore.password=mp6yc0UD9e -Dmetadata-keystore.aliases=metadata -Dmetadata-keystore.metadata.password=oKIWzVdEdA -Dmetadata-keystore.metadata.algorithm=DESede”
+       ```
+
+       Make sure to replace `<TOMCAT_HOME>` with your Tomcat installation directory.
+
 ## Tailor your installation
 
 When installing Content Services, an important part of the configuration process is the removal of any unused applications. Use this information to determine any applications that you might want to remove from your installation and how to remove them.
@@ -229,6 +279,7 @@ When installing Content Services, an important part of the configuration process
 For example, if you want a Share-only tier, remove the Alfresco WAR file and any Solr configurations. Likewise, if you want an Alfresco-only tier, remove the Alfresco Share WAR file and any Solr configurations.
 
 ### Removing the Alfresco Repository Webapp
+
 The Alfresco Content Repository Webapp is deployed with the `alfresco.war` file. It contains the implementation of the 
 Content Repository and related content services, additional commands, configuration files, and licenses for a manual 
 installation. Use this information to remove the `alfresco.war` file from your Tomcat application server:
@@ -240,6 +291,7 @@ installation. Use this information to remove the `alfresco.war` file from your T
 You've successfully removed the Alfresco Content Repository Webapp from your application server.
 
 ### Removing the Alfresco Share UI Webapp
+
 The Alfresco Share UI Webapp is deployed with the `share.war` file. It contains the implementation of the
 Alfresco Share user interface. Use this information to remove the `share.war` file from your Tomcat application server:
 

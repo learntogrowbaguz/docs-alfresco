@@ -2,9 +2,9 @@
 title: Scripts
 ---
 
-Scripts are used to execute a script as part of a process. Process variables can be passed to the script and the results of a script can be sent back to a process instance as process variables.
+Scripts are used to execute a script as part of a process. Process variables can be passed to the script and the results of a script can be sent back to a process instance as process variables. Any JavaScript that is created by the modeling application has the same permissions assigned to it as the logged in user. This is helpful because it allows the logged in user to test their own scripts with their own files.
 
-Script design uses the functionality of [Monaco](https://github.com/Microsoft/monaco-editor){:target="_blank"} and uses the [Graal javascript engine](https://github.com/graalvm/graaljs){:target="_blank"} for execution.
+Script design uses the functionality of the [Monaco Editor](https://github.com/Microsoft/monaco-editor){:target="_blank"} and uses the [GraalVM JavaScript Engine](https://github.com/graalvm/graaljs){:target="_blank"} for execution.
 
 Scripts are added to a process definition using a [script task]({% link process-automation/latest/model/processes/bpmn.md %}#script-task).
 
@@ -40,7 +40,9 @@ To create a script:
 
 The Modeling Application contains two tabs for creating and managing scripts.
 
-The **Script Editor** is the GUI for modeling scripts by typing in the declared language. The **Metadata** contains the properties related to the script.
+The **Script Editor** is the GUI for modeling scripts by typing in the declared language. The editor has autocomplete functionality for APIs and script variables. The **Metadata** contains the properties related to the script.
+
+![auto complete]({% link process-automation/images/auto-complete.png %})
 
 ### Simulation
 
@@ -125,6 +127,8 @@ The following content APIs are supported:
 * `SearchService`
 * `SiteService`
 * `TagService`
+
+> **Note:** The API scripts can be tested in the simulator on the scripts window.
 
 You can create the object by accessing the API which then allows you to make use of all its methods.
 

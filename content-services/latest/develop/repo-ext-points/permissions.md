@@ -8,6 +8,8 @@ replaced or extended to create new permissions and roles.
 
 Architecture Information: [Platform Architecture]({% link content-services/latest/develop/software-architecture.md %}#platformarch)
 
+>**Important:** If you have existing sites and then add a new custom role for sites, the existing sites will break. To fix this issue, you need to create a script to manually add your custom role group to all existing sites, for example, `GROUP_site_<my-site>_<custom-role>`.
+
 ## Description
 
 Content Services provides a handful of out-of-the-box roles with different levels of permissions in the repository: 
@@ -27,11 +29,7 @@ If we are setting up permissions within a site, then we have four site roles to 
 * **Site Collaborator** - can do everything except moving and deleting other users content
 * **Site Manager** - full access
 
-Now, sometimes these roles are not enough to set up the permissions we need. We can then configure custom permissions 
-(could also be referred to as custom roles). Before creating new permissions and roles it is a good idea to get familiar 
-with the [**permissionDefinitions.xml**](https://github.com/Alfresco/alfresco-repository/blob/master/src/main/resources/alfresco/model/permissionDefinitions.xml){:target="_blank"} 
-file format. The element defining a basic low level right is called **permission**. Here are a couple of examples of 
-out-of-the-box permissions:
+A user with privileges to create or modify an embedded workflow may execute arbitrary system commands with the same privileges as the account running Alfresco. Now, sometimes these roles are not enough to set up the permissions we need. We can then configure custom permissions (could also be referred to as custom roles). Before creating new permissions and roles it is a good idea to get familiar with the [**permissionDefinitions.xml**](https://github.com/Alfresco/alfresco-repository/blob/master/src/main/resources/alfresco/model/permissionDefinitions.xml){:target="_blank"} file format. The element defining a basic low level right is called **permission**. Here are a couple of examples of out-of-the-box permissions:
 
 ```xml
 ...

@@ -935,7 +935,7 @@ The following properties are available for fully-distributed caches and aren't s
 
 Use this information to add a MIME type definition.
 
-The MIME type default definitions are in the [mimetype-map.xml](https://dev.alfresco.com/resource/AlfrescoOne/5.1/configuration/alfresco/mimetype/mimetype-map.xml){:target="_blank"} file.
+The MIME type default definitions are in the [mimetype-map.xml](https://github.com/Alfresco/alfresco-community-repo/blob/master/data-model/src/main/resources/alfresco/mimetype/mimetype-map.xml){:target="_blank"} file.
 
 1. Copy the default definition file and place it in a file called `<extension>/mimetype/mimetypes-extension-map.xml`.
 
@@ -964,6 +964,14 @@ The MIME type default definitions are in the [mimetype-map.xml](https://dev.alfr
 4. Restart Content Service.
 
 The MIME type is available in the repository.
+
+## Configure view in browser MIME types {#conf-view-in-browser-mime-types}
+
+The `content.nonAttach.mimetypes` property specifies the MIME types (by default: `application/pdf`, `image/jpeg`,
+`image/gif`, `image/png`, `image/tiff` ,`image/bmp`) that can be viewed in a browser by clicking the Alfresco Share
+button **View in Browser**, all other file types are forced to be downloaded.
+
+This property can be overridden, but it's discouraged since it might cause a security breach.
 
 ## Configure metadata extraction
 
@@ -1124,32 +1132,6 @@ Follow these replication steps for the MySQL database.
 
     Restore the data from the master, either as you would normally restore a backup or with the statement `LOAD DATA FROM MASTER`. The latter will lock the master for the duration of the operation, which could be quite lengthy, so you might not be able to spare the downtime.
 
-## Customize content transformations
-
-This task describes how to customize content transformations.
-
-1. Download the [content-services-context.xml](https://github.com/Alfresco/alfresco-community-repo/blob/release/7.0.0/repository/src/main/resources/alfresco/content-services-context.xml){:target="_blank"} file.
-
-2. Paste this file into the `<extension>` directory, and open the file.
-
-    Transformers start below the comment:
-
-    ```xml
-    <!-- Content Transformations -->
-    ```
-
-3. Locate the bean containing a transformer that's most similar to the transformer that you want to add.
-
-    It's unlikely that you'll want to modify an existing transformer.
-
-4. Delete every pair of `<bean> </bean>` tags except the pair containing the similar transformer.
-
-5. Rename and modify the bean.
-
-6. Save the file.
-
-    If you save the file in the `<extension>` directory, the filename must end with `‑context.xml`.
-
 ## Control indexes
 
 You can use the `cm:indexControl` aspect to control the indexing of content in Alfresco Share. Using this aspect you can choose to disable repository-wide indexing. This can prove useful in certain situations, such as bulk loading.
@@ -1237,3 +1219,17 @@ cors.exposed.headers=Access-Control-Allow-Origin,Access-Control-Allow-Credential
 cors.support.credentials=true
 cors.preflight.maxage=10
 ```
+
+## JavaScript execution
+
+> **Note:** This section only applied from Alfresco Content Services 7.1.1.7 onwards.
+
+The repository can execute server-side JavaScript from different places as webscripts, workflows, or folder rules. This section shows how to limit these scripts execution regarding duration, memory usage, and call stack depth. This is useful to prevent long running scripts or high memory consumption. The **memory** and **time** limits, if enabled, will only apply to scripts that have been uploaded to the repository by users, all the other scripts deployed at application server level (classpath) won’t be affected by these limits. The **call stack depth** limit, if enabled, will be applied to every scripts (not only custom ones).
+
+| Property | Description |
+| -------- | ----------- |
+| scripts.execution.optimizationLevel | This property allows you to configure the Rhino optimization level: {::nomarkdown}<ul><li>When set to `-1`, the interpretive mode is used.</li><li>When set to `0`, no optimizations are performed.</li><li>When set to `1-9`, optimizations are performed.</li></ul>{:/} The default value is  `0`. <br><br>For more details, see [Mozilla Projects - Rhino Optimization](https://udn.realityripple.com/docs/Mozilla/Projects/Rhino/Optimization){:target="_blank"}. |
+| scripts.execution.maxScriptExecutionSeconds | The number of seconds a script is allowed to run. If script execution exceeds the configured seconds, it will be stopped. <br><br>To enable this limit, set the property with a value bigger than zero. The default value is  `-1` (disabled). |
+| scripts.execution.maxStackDepth | The maximum stack depth (call frames) allowed in a single invocation of the interpreter. <br><br>This configuration only works for scripts compiled with interpretive mode, which means the optimization level will always be `-1`, overriding the value from the `scripts.execution.optimizationLevel` property. <br><br>As the interpreter doesn't use the Java stack but rather manages its own stack in the heap memory, a **runaway recursion** in interpreted code would eventually consume all available memory and cause an error. This setting helps prevent such situations. <br><br>To enable this limit, set the property with a value bigger than zero. The default value is  `-1` (disabled). |
+| scripts.execution.maxMemoryUsedInBytes | The maximum memory (in bytes) a script is allowed to use. If script execution exceeds the configured memory, it will be stopped. <br><br>To enable this limit, set the property with a value bigger than zero. The default value is  `-1` (disabled). <br><br>If you would like to use this setting, 10000000 bytes (10 MB) is a reasonable value for custom scripts. This configuration only works with the supported JVM. |
+| scripts.execution.observerInstructionCount | The number of instructions that will trigger the observer that applies the memory and time limits. <br><br>The value may vary depending on the optimization level. <br><br>This configuration allows you to monitor the script execution and needs to be set to a value bigger than zero so that the described limits work. The default value is  `-1` (disabled). <br><br>This property is not linear, for example the instruction count here is not the number of Javascript instructions. A Javascript line can correspond to hundreds (or thousands) of lines for the observer. A value between 5000-10000 is suitable for this setting. |

@@ -60,9 +60,7 @@ details, and you cannot find any information about it anywhere, consult the API 
 You can find more information about the API Explorer on [this page]({% link content-services/7.1/develop/rest-api-guide/install.md %}), 
 which also has information on how to install it for your specific version of ACS.
 
-If you want to know what the API Explorer looks like right now, then have a look at the online version at 
-[https://api-explorer.alfresco.com/api-explorer](https://api-explorer.alfresco.com/api-explorer){:target="_blank} 
-(note that this API Explorer always shows the API for the latest version of ACS).
+If you want to know what the API Explorer looks like right now, then have a look at the online version at [https://api-explorer.alfresco.com/api-explorer](https://api-explorer.alfresco.com/api-explorer){:target="_blank} (note that this API Explorer always shows the API for the latest version of ACS).
 
 ### Finding out if an API endpoint is supported in a specific ACS version
 
@@ -117,6 +115,24 @@ the base64 encoded ticket.
 
 How to get a ticket and how to use it is explained [here]({% link content-services/7.1/develop/rest-api-guide/install.md %}#auth) 
 in the ReST API user guide.
+
+### JSON with Padding (JSONP)
+The `allow.unsecure.callback.jsonp` property controls if the JSONP feature is supported or not, it is `false` by default. 
+If set to `true`, then the `callback` query parameter on a ReST call will be accepted. This parameter is used by JSONP 
+to encapsulate a JSON response with a javascript function.
+
+>**Important!:** If JSONP is enabled by setting the `allow.unsecure.callback.jsonp` to `true`, then this can lead to a security issue.
+
+The following table explains how the ReST API behaves depending on the setting of this property:
+
+|property value|`callback` parameter|result|
+|--------------|------------------|------|
+|`false`|existing|HTTP 403 with an error message, operation cancelled|
+|`false`|non existing|operation executed as usual|
+|`true`|existing|operation executed as usual|
+|`true`|non existing|operation executed as usual|
+
+The `allow.unsecure.callback.jsonp` property is set in the `alfresco-global.properties` configuration file.
 
 ### Limiting result items
 

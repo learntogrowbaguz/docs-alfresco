@@ -425,7 +425,7 @@ Re-encryption occurs while the repository is running. For runtime re-encryption,
 
 Content Services uses cryptographic password hashing technique to securely store passwords.
 
-All versions prior to Alfresco One 5.1.5 used the MD4 (Message Digest 4) and SHA256 hash algorithms (mainly to support NLTM) to store critical data. But this is no longer considered a secure approach as the hashed password is very easy to decrypt. You now have the option to configure Content Services to use Bcrypt to store passwords. By default, the system uses MD4 to allow users to use MD4 hashed passwords for `alfrescoNTLM` authentication.
+All versions prior to Alfresco One 5.1.5 used the MD4 (Message Digest 4) and SHA256 hash algorithms (mainly to support NTLM) to store critical data. But this is no longer considered a secure approach as the hashed password is very easy to decrypt. You now have the option to configure Content Services to use Bcrypt to store passwords. By default, the system uses MD4 to allow users to use MD4 hashed passwords for `alfrescoNTLM` authentication.
 
 Bcrypt is an adaptive hash function based on the Blowfish symmetric block cipher cryptographic algorithm. It is incredibly slow to hash input compared to other functions, but this results in a much better output hash. Content Services is configured to use a strength of `10` to provide a good compromise of speed and strength.
 
@@ -433,15 +433,9 @@ With Bcrypt, the hashing algorithm (also called an encoder) can be configured by
 
 * `md4`
 * `sha256`
-* `bcrypt10`
+* `bcrypt10` (the default)
 
 If you provide a different value, the repository won't start.
-
-To maintain backwards compatibility with previous versions, the default setting for this property is:
-
-```text
-system.preferred.password.encoding=md4
-```
 
 After upgrading to the latest Content Services version, when the user logs in or changes the password, the system rehashes the password using the preferred encoding mechanism and stores the mechanism being used. If the preferred encoding is set to `md4`, the system moves the current hashed passwords for that user.
 
@@ -467,26 +461,29 @@ system.upgradePasswordHash.jobCronExpression=0 0/10 * * * ?
 
 Alternatively, the job can be executed immediately via a JMX console. The job makes use of `JobLockService` so it is safe to run in a clustered environment.
 
-If the password upgrade job is enabled, make sure you enable the `log4j.logger.org.alfresco.repo.security.authentication.UpgradePasswordHashWorker` logging in `log4j.properties`.
+If the password upgrade job is enabled, make sure you enable the `logger.alfresco-repo-security-authentication-UpgradePasswordHashWorker.name=org.alfresco.repo.security.authentication.UpgradePasswordHashWorker` logging in `log4j2.properties`.
 
 You can either set it to `trace` or `debug` as shown below:
 
 ```text
-log4j.logger.org.alfresco.repo.security.authentication.UpgradePasswordHashWorker=trace
+logger.alfresco-repo-security-authentication-UpgradePasswordHashWorker.name=org.alfresco.repo.security.authentication.UpgradePasswordHashWorker
+logger.alfresco-repo-security-authentication-UpgradePasswordHashWorker.level=trace
 ```
 
 OR
 
 ```text
-log4j.logger.org.alfresco.repo.security.authentication.UpgradePasswordHashWorker=debug
+logger.alfresco-repo-security-authentication-UpgradePasswordHashWorker.name=org.alfresco.repo.security.authentication.UpgradePasswordHashWorker
+logger.alfresco-repo-security-authentication-UpgradePasswordHashWorker.level=debug
 ```
 
 `Trace` displays a list of all the processed users. `Debug` is a slightly less verbose output; it displays a list of only those users whose password was changed.
 
-To monitor users that have their passwords upgraded when they log in, add the following in `log4j.properties`:
+To monitor users that have their passwords upgraded when they log in, add the following in `log4j2.properties`:
 
 ```text
-log4j.logger.org.alfresco.repo.security.authentication.HashPasswordTransactionListener=debug
+logger.alfresco-repo-security-authentication-HashPasswordTransactionListener.name=org.alfresco.repo.security.authentication.HashPasswordTransactionListener
+logger.alfresco-repo-security-authentication-HashPasswordTransactionListener.level=debug
 ```
 
 ## Encrypting properties {#encryptconfigprops}

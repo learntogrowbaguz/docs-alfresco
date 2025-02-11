@@ -17,6 +17,8 @@ The keys and certificates required for mutual TLS on the repository side are set
 
 1. Modify `<TOMCAT_HOME>/conf/server.xml` and add the following connector:
 
+    * If using Alfresco Content Services 6.x on Tomcat 8:
+
     ```xml
     <Connector port="8999" protocol="HTTP/1.1"
         connectionTimeout="20000"
@@ -27,6 +29,32 @@ The keys and certificates required for mutual TLS on the repository side are set
         truststoreFile="xxxxxxx"
         truststorePass="yyyyy"
     />
+    ```
+
+    * If using Alfresco Content Services 7.x on Tomcat 9 or 23.x on Tomcat 10:
+
+    ```bash
+    <Connector port="8999"
+           protocol="org.apache.coyote.http11.Http11NioProtocol"
+           connectionTimeout="20000"
+           maxThreads="150"
+           SSLEnabled="true"
+           scheme="https"
+           secure="true"
+           defaultSSLHostConfigName="localhost">
+	    <SSLHostConfig hostName="localhost"
+	               protocols="TLSv1.2"
+	               certificateVerification="required"
+	               truststoreFile="xxxxxxx"
+	               truststorePassword="yyyyy"
+	               truststoreType="JCEKS">
+		    <Certificate certificateKeystoreFile="xxxxxxx"
+		             certificateKeyAlias="ssl.repo"
+		             type="RSA"
+		             certificateKeystorePassword="yyyyy"
+		             certificateKeystoreType="JCEKS"/>
+	    </SSLHostConfig>
+    </Connector>
     ```
 
 2. Copy the keystore and truststore files you created in [Generating secure keys for ssl communication]({% link search-services/latest/config/keys.md %}#generating-secure-keys-for-ssl-communication) to the machine that's running the repository.
@@ -177,4 +205,6 @@ This configuration is already provided in `solrconfig.xml`.
 </requestHandler>
 ```
 
-To specify the backup location, set `solr.backup.dir` in `solrcore.properties`.
+To specify the backup location you must configure a parameter called `solr.backup.dir` in the `solrcore.properties` file. The parameter determines the root backup directory and one must be created for each core, in advance of when you start Solr.
+
+For example, if you have one core then the parameter might be set to `/var/data/solr/backup` and you must create that directory before starting Solr. If you have two cores, called `alfresco` and `archive`, then the parameter might be set to `/var/data/solr/backup/alfresco`, `/var/data/solr/backup/archive` and you must create those directories before starting Solr.

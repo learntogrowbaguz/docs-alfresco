@@ -15,8 +15,7 @@ Both connectors can send and return JSON payloads from a process. The REST conne
 ## Extend the Digital Workspace
 
 The default [end user interface]({% link process-automation/latest/model/interfaces.md %}) provided with Process Automation is the [Alfresco Digital Workspace]({% link digital-workspace/latest/index.md %}).
-
-> **Note**: The Digital Workspace can be extended to customize the branding and components. If your requirement is to customize large parts of the Digital Workspace then consider [developing a custom user interface](#develop-a-custom-user-interface) instead.
+Starting with Process Automation version 7.12, large parts of the Digital Workspace can be easily customized by editing the provided UI, see [creating a custom user interface](#create-a-custom-user-interface). If you're using a version older than 7.12, use the instructions below to extend your Digital Workspace.
 
 ### Setup
 
@@ -608,119 +607,37 @@ Restart the application and you will see the custom columns in the process list 
 
 ![Process list custom template]({% link process-automation/images/process-list-custom-template.png %})
 
-## Develop a custom user interface
+## Create a custom user interface
 
-The [Application Development Framework (ADF)](https://www.alfresco.com/abn/adf/docs/){:target="_blank"} can be used to develop a custom [end user interface]({% link process-automation/latest/model/interfaces.md %}) from scratch.
+Starting with Process Automation version 7.12, custom user interfaces can be modified, starting from the default interface. If you're using older Process Automation version and wish to modify the user interface, see [extending digital workspace](#extend-the-digital-workspace) instead.
 
-### Setup {#custom-setup}
+To create a custom user interface:
 
-The Yeoman generator can be used to develop custom user interfaces for Process Automation.
+1. Sign in to the Modeling Application and open a project.
 
-1. Clone the [Yeoman generator project](https://github.com/Alfresco/generator-alfresco-adf-app/){:target="_blank"}.
+2. Click the three dots next to **UI** and then select **Create Custom UI**.
 
-2. Open `apps/utils.js` and remove the following two templates from being excluded:
+3. Enter the name of the custom UI.
 
-    ```js
-    const excludedTemplates = ['adf-cli-activiti-template', 'adf-cli-activiti-acs-template'];
-    ```
+If you want to develop the custom UI basing on the existing default UI of the application, select **Generate from template** and click **download source code link**. Once your custom UI is ready to be deployed select **Upload** (you need to build your application and create a zip from the build).
 
-3. Run the following command from the root of the project: `yo alfresco-adf-app`.
+### Develop a custom user interface
 
-    1. Give the project a name.
-    2. Select the option **Content and Process Services with Activiti** to develop an application using process and content components, or **Process Services with Activiti** if developing only with process components.
-    3. Install any required dependencies.
+Custom UIs can be developed using hyland nx generators.
 
-4. Configure the security in the `app.config.json` of the generated application:
-
-    ```json
-    "$schema": "../node_modules/@alfresco/adf-core/app.config.schema.json",
-        "ecmHost": "http://{hostname}{:port}",
-        "bpmHost": "http://{hostname}{:port}",
-        "identityHost": "https://{hostname}{:port}/auth/realms/alfresco",
-        "providers": "ALL",
-        "appName": "invoice-approval-application",
-        "application": {
-            "name": "Alfresco ADF Application"
-        },
-
-    "authType": "OAUTH",
-    "oauth2": {
-        "host": "https://{hostname}/auth/realms/alfresco",
-        "clientId": "invoice-approval-application",
-        "scope": "openid",
-        "secret": "",
-        "implicitFlow": true,
-        "silentLogin": true,
-        "redirectSilentIframeUri": "{protocol}//{hostname}{:port}/assets/silent-refresh.html",
-        "redirectUri": "/",
-        "redirectUriLogout": "/"
-    },
-    ```
-
-5. Add the property `"alfresco-deployed-apps"` to the `app.config.json` with the name of the deployed application you are developing an interface for. For example, `"alfresco-deployed-apps": [{"name":"invoice-approval-application"}]`.
-
-6. To develop the interface locally, CORS will need to be bypassed. Edit the `proxy.conf.js` replacing the `{hostname}` and `{realm}` with those relevant to your environment and realm:
-
-    ```js
-    module.exports = {
-        "/auth/admin/realms/{realm}": {
-            "target": "https://{hostname}",
-            "secure": false,
-            "pathRewrite": {
-                "^/auth/admin/realms/{realm}": ""
-            },
-            "changeOrigin": true,
-            "logLevel": "debug"
-        },
-
-        "/auth/realms/...": {
-            "target": "https://{hostname}",
-            "secure": false,
-            "pathRewrite": {
-                "^/auth/realms/{realm}": ""
-            },
-            "changeOrigin": true,
-            "logLevel": "debug"
-        },
-
-        "/": {
-            "target": "https://{hostname}",
-            "secure": false,
-            "changeOrigin": true,
-            "logLevel": "debug"
-        },
-
-        "/alfresco": {
-            "target": "https://{hostname}",
-            "secure": false,
-            "changeOrigin": true
-        }
-    }
-    ```
-
-### Develop {#custom-develop}
-
-There are a set of [content components](https://www.alfresco.com/abn/adf/docs/content-services/){:target="_blank"} and a set of [process components](https://www.alfresco.com/abn/adf/docs/process-services-cloud/){:target="_blank"} that can be used to develop the custom user interface with. The content components can only be used if you selected the option **Content and Process Services with Activiti** when generating the application.
-
-> **Note**: Process Automation uses the Process Services **Cloud** components.
+The downloaded zip includes instructions how to customize application. To see the instructions, refer to **plugins-generators.md** file within the downloaded ZIP package.
 
 ### Upload {#custom-upload}
 
 Once the custom interface has been fully developed and tested it can be deployed.
 
-1. Upload your source code to your Alfresco S3 bucket.
+1. Sign in to the Modeling Application and open a project.
 
-    > **Note**: Please contact [Support](https://support.alfresco.com/){:target="_blank"} if you do not have the details of this bucket.
+2. Select the created custom UI under the UI drop-down list.
 
-2. Raise a [Support request](https://support.alfresco.com/){:target="_blank"} with this information:
+3. Click **Upload**.
 
-    * A link to the source code in S3.
-    * The name of the application to update 
-
-        > **Note**: This should match what is configured in the `app.config.json` for the interface.
-
-    * The environment the application is deployed in.
-    * When the application should be updated with the new interface.
+4. Upload the custom UI as a ZIP file.
 
 ## Custom form fields
 
@@ -734,8 +651,8 @@ The REST APIs are accessed differently depending on whether a service is an appl
 
 The OpenAPI specifications for application endpoints require the `{application-name}` element in the URL:
 
-* Application runtime bundle: `{domain-name}/{application-name}/rb/swagger-ui/`.
-* Application query service: `{domain-name}//{application-name}/query/swagger-ui/GraphQL`.
+* Application runtime bundle: `{domain-name}/{application-name}/rb/swagger-ui/index.html`.
+* Application query service: `{domain-name}//{application-name}/query/swagger-ui/index.html`.
 
 The query service can also use GraphQL to expand the querying and can be accessed at: `{domain-name}/{application-name}/notifications/graphiql`.
 
@@ -769,26 +686,14 @@ For example:
 }
 ```
 
-### Clean up using Create cleanup job
+### Replay service task using REST API
 
-You can clean up historical data using the Create cleanup job process from within the Admin App.
+If a service task does not complete due to a Cloud connector failure it's possible to replay the task and send a new integration request. To do this you must provide the execution id and the definition id of the service task:
 
-1. Sign into the Admin App.
+`POST /v1/executions/{executionId}/replay/service-task`
 
-2. Expand **Process Admin** from the left pane.
-
-3. Select **Data Cleanup**.
-
-4. Click the **+** symbol on the top right to create a new cleanup job.
-
-5. Select the application you want to run the Create cleanup job process for from the drop down menu.
-
-6. Select the applications process definition you want to cleanup.
-
-    You can select multiple process definitions. If you do not select a process definition for the application all process definitions are selected.
-
-7. Select the period of time you want to retain any completed or cancelled processes.
-
-8. Click **Yes I agree** to creating the cleanup job and then click **CREATE**.
-
-![Cleanup Job]({% link process-automation/images/cleanup-job.png %})
+```json
+{
+   "flowNodeId": "flowNodeId"
+}
+```

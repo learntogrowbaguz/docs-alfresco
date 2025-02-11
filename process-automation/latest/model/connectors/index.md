@@ -30,6 +30,21 @@ Connectors are created as [BPMN elements]({% link process-automation/latest/mode
 
 4. Drag the connector onto the diagram canvas and fill in the properties.
 
+## Add a connector instance to a process
+
+While editing a process, you can add a connector instance in the flow.
+
+1. Create a new instance by selecting the connector type from the toolbar
+![Connector toolbar]({% link process-automation/images/connector-toolbar.png %})
+
+2. Once selected, create a new connector instance or use an existing one:
+![Create new connector instance]({% link process-automation/images/create-new-connector-instance.png %})
+
+3. Add the connector to the process and configure its properties:
+![Configure connector]({% link process-automation/images/configure-connector.png %})
+
+The documentation below covers more details about properties of each individual connector.
+
 ## Connector modeling
 
 Every connector instance created in a process definition will be created in the **Connectors** section of a project using the `name` assigned to the instance.
@@ -229,4 +244,4 @@ When a project is [deployed]({% link process-automation/latest/admin/release.md 
 
 Read and write access is granted to each service account on the [default storage location]({% link process-automation/latest/admin/release.md %}#deploy-steps/storage). If the connector reads or writes to files and folders held elsewhere in the repository, the service account will need to be manually given explicit permission to those directories otherwise the connector action will fail.
 
-> **Note**: The service accounts for an application are all added to a group named `<application-name>-service-group` so that permissions can be manually assigned for an entire application if required.
+> **Note**: The service accounts for an application are all added to a group named `<application-name>-service-group` so that permissions can be manually assigned for an entire application if required. This also makes it easier when adding permissions because service group can be found by the application name. This approach is useful when granting permissions to a content folder in the Digital Workspace, when using the copy, move, or update actions, for example `MOVE_FILE`.

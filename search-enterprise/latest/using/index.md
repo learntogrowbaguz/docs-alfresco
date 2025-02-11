@@ -75,6 +75,25 @@ Fields fall into three types, property fields, special fields, and fields for da
 |Field for Data Type|Fully qualified Data Type, for example `{http://www.alfresco.org/model/dictionary/1.0}content:apple`.|
 |Field for Data Type|Data Type style property, for example `d:content:apple`.|
 
+## Search in multi-value fields
+
+When you search in multi-value fields there are additional options available than for [Search in fields](#search-in-fields). To search in multi-value fields your properties must have `Multiple` values enabled, for more see [Create a property
+]({% link content-services/latest/config/models.md %}#create-a-property).
+
+The following example queries are executed using a sample multi-valued property `"mul:os"` that stores values `"MacOS"` and `"Linux"`.
+
+`mul:os:"MacOS"`
+
+Returns the document because `"MacOS"` is one of the values of the property.
+
+`mul:os:("MacOS" AND "Windows")`
+
+Does not return a document because the property doesn't contain the value `"Windows"`.
+
+`mul:os:("MacOS" OR "Windows")`
+
+Returns the document because `"MacOS"` is one of the values of the property, even though `"Windows"` is not.
+
 ## Search for a phrase
 
 Phrases are enclosed in double quotes. Any embedded quotes can be escaped using ''. If no field is specified then the default `TEXT` field will be used, as with searches for a single term.
@@ -84,6 +103,12 @@ The whole phrase will be tokenized before the search according to the appropriat
 ```afts
 "big yellow banana"
 ```
+
+The behavior for phrase queries with Alfresco Search Enterprise (Elasticsearch) differs from Alfresco Search Services (Solr).
+
+With Solr, searching for multiple terms in a phrase query returns results where all terms exist in any order. For example, searching “scary fish” returns results for “scary gigantic fish” and also “it’s OK if you have a fish, but scary if you don’t”.
+
+With Elasticsearch searching for multiple terms in a phrase query returns results where all terms exist in the order supplied. For example, searching “scary fish” returns results for “there are scary fish in the water” but not “scary gigantic fish” or “it’s OK if you have a fish, but scary if you don’t”. An alternative is to search “scary AND fish” to find results where both terms occur in any order. See [Search for conjunctions](#search-for-conjunctions) for more information.
 
 ## Search for wildcards
 
@@ -191,7 +216,7 @@ cm:my\ content:my\ name
 
 Inclusive ranges can be specified in Google-style. There is an extended syntax for more complex ranges. Unbounded ranges can be defined using MIN and MAX for numeric and date types and "u0000" and "FFFF" for text (anything that is invalid).
 
-|Lucene|Google|Description|Example|
+|Lucene/CMIS|Google|Description|Example|
 |------|------|-----------|-------|
 |`[#1 TO #2]`|`#1..#2`|The range #1 to #2 inclusive ``#1 <= x <= #2``|`0..5``[0 TO 5]`|
 |`<#1 TO #2]`| |The range #1 to #2 including #2 but not #1.`#1 < x <= #2`|`<0 TO 5]`|
@@ -231,6 +256,24 @@ In the REST API you can specify the timezone to be used in search for date range
 }
 ```
 
+## Query time boosts
+
+Query time boosts allow matches on certain parts of the query to influence the score more than others.
+
+All query elements can be boosted: terms, phrases, exact terms, expanded terms, proximity (only in filed groups), ranges, and groups.
+
+```bash
+term^2.4
+"phrase"^3
+term~0.8^4
+=term^3
+~term^4
+cm:name:(big * yellow)^4
+1..2^2
+[1 TO 2]^2
+yellow AND (car OR bus)^3
+```
+
 ### Search using date math
 
 Date range queries can be more powerful when applying date math functions. AFTS supports adding and subtracting periods, as well as rounding:
@@ -255,7 +298,7 @@ For more details see the [Elasticsearch documentation](https://www.elastic.co/gu
 
 ## Search for an exact term
 
-> **Note:** Exact Term searching is only allowed if default Alfresco Repository configuration has been changed in order to enable this feature.
+> **Note:** Exact Term searching is only allowed if the default Alfresco Repository configuration has been changed in order to enable this feature, for more see [Pre-indexing considerations]({% link search-enterprise/latest/admin/index.md %}#pre-indexing-considerations).
 
 To search for an exact term you must prefix it with "=". The supported syntax:
 
@@ -311,6 +354,36 @@ big * apple
 TEXT:(big * apple)
 big *(3) apple
 TEXT:(big *(3) apple)
+```
+
+## Search query templates
+
+The FTS query language supports query templates. These are intended to help when building application specific searches.
+
+A template is a query but with additional support to specify template substitution.
+
+* **%field**
+
+    Insert the parse tree for the current `ftstest` and replace all references to fields in the current parse tree with the supplied field.
+
+* **%(field1, field2)%(field1 field2)**
+
+    (The comma is optional.) Create a disjunction, and for each field, add the parse tree for the current `ftstest` to the disjunction, and then replace all references to fields in the current parse tree with the current field from the list.
+
+|Name|Template|Example Query|Expanded Query|
+|----|--------|-------------|--------------|
+|t1|%cm:name|t1:n1|cm:name:n1|
+|t1|%cm:name|t1:"n1"|cm:name:"n1"|
+|t1|%cm:name|~t1:n1^4|~cm:name:n1^4|
+|t2|%(cm:name, cm:title)|t2:"woof"|(cm:name:"woof" OR cm:title:"woof")|
+|t2|%(cm:name, cm:title)|~t2:woof^4|(~cm:name:woof OR ~cm:title:woof)^4|
+|t3|%cm:name AND my:boolean:true|t3:banana|(cm:name:banana AND my:boolean:true)|
+
+Templates can refer to other templates.
+
+```sql
+nameAndTitle -> %(cm:name, cm:title)
+nameAndTitleAndDesciption -> %(nameAndTitle, cm:description)
 ```
 
 ## Requesting optional item information
